@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "falocalrepo-database"
+name = "localrepo-database"
 version = "5.4.3"
-description = "Database functionality for falocalrepo."
-authors = ["Matteo Campinoti <matteo.campinoti94@gmail.com>"]
+description = "Database functionality for localrepo. A fork of falocalrepo."
+authors = ["The Solipsis Project <the.solipsis.project@gmail.com>", "Matteo Campinoti <matteo.campinoti94@gmail.com>"]
 license = "EUPL-1.2"
 readme = "README.md"
-homepage = "https://github.com/FurryCoders/falocalrepo-database"
-repository = "https://github.com/FurryCoders/falocalrepo-database"
+homepage = "https://github.com/solipsis-project/localrepo-database"
+repository = "https://github.com/solipsis-project/localrepo-database"
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
@@ -17,9 +17,8 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Changelog" = "https://github.com/FurryCoders/falocalrepo-database/blob/master/CHANGELOG.md"
-"Source" = "https://github.com/FurryCoders/falocalrepo-database"
-"Download" = "https://pypi.org/project/falocalrepo-database/#files"
+"Changelog" = "https://github.com/solipsis-project/localrepo-database/blob/master/CHANGELOG.md"
+"Source" = "https://github.com/solipsis-project/localrepo-database"
 
 [tool.poetry.dependencies]
 python = "^3.10"

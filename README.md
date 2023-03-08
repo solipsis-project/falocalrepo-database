@@ -4,10 +4,9 @@
 
 # FALocalRepo-Database
 
-Database functionality for [falocalrepo](https://pypi.org/project/falocalrepo).
+Database functionality for [localrepo](https://github.com/solipsis-project/LocalRepo).
 
 [![](https://img.shields.io/github/v/tag/FurryCoders/falocalrepo-database?label=github&sort=date&logo=github&color=blue)](https://github.com/FurryCoders/falocalrepo-database)
-[![](https://img.shields.io/pypi/v/falocalrepo-database?logo=pypi)](https://pypi.org/project/falocalrepo-database/)
 [![](https://img.shields.io/pypi/pyversions/falocalrepo-database?logo=Python)](https://www.python.org)
 
 </div>
