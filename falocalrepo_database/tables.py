@@ -20,6 +20,8 @@ __all__ = [
 ]
 
 users_table: str = "USERS"
+current_usernames_table: str = "CURRENT_USERNAMES"
+all_usernames_table: str = "ALL_USERNAMES"
 submissions_table: str = "SUBMISSIONS"
 journals_table: str = "JOURNALS"
 comments_table: str = "COMMENTS"
@@ -40,6 +42,15 @@ class UsersColumns(Columns):
     ACTIVE: Column = Column("ACTIVE", bool)
     USERPAGE: Column = Column("USERPAGE", str, to_entry=str.strip)
 
+class CurrentUsernamesColumns(Columns):
+    USER_ID = Column("ID", int, unique=True, key=True, check="{name} > 0")
+    USERNAME: Column = Column("USERNAME", str, unique=True, check="length({name}) > 0",
+                              to_entry=clean_username)
+
+class AllUsernamesColumns(Columns):
+    USERNAME: Column = Column("USERNAME", str, unique=True, key=True, check="length({name}) > 0",
+                              to_entry=clean_username)
+    USER_ID = Column("ID", int, check="{name} > 0")
 
 class SubmissionsColumns(Columns):
     ID: Column = Column("ID", int, unique=True, key=True, check="{name} > 0")
