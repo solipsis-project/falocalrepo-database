@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "localrepo-database"
-version = "5.4.4"
+version = "5.5.0"
 description = "Database functionality for localrepo. A fork of falocalrepo."
 authors = ["The Solipsis Project <the.solipsis.project@gmail.com>", "Matteo Campinoti <matteo.campinoti94@gmail.com>"]
 license = "EUPL-1.2"
