@@ -459,6 +459,89 @@ def make_database_5_4(conn: Connection) -> Connection:
 
     return conn
 
+# noinspection SqlResolve,SqlNoDataSourceInspection,DuplicatedCode
+def make_database_5_5(conn: Connection) -> Connection:
+    conn.execute("""create table USERS
+    USERNAME text unique not null check (length(USERNAME) > 0),
+    FOLDERS text not null,
+    ACTIVE boolean not null,
+    USERPAGE text not null,
+    primary key (ID));""")
+
+    conn.execute("""create table CURRENT_USERNAMES
+    (USERNAME text unique not null check (length(USERNAME) > 0,
+    USER_ID integer not null check (ID > 0),
+    foreign key (USERNAME) references USERS(USERNAME),
+    primary key (USER_ID)));""")
+
+    conn.execute("""create table ALL_USERNAMES
+    (USERNAME text unique not null check (length(USERNAME) > 0,
+    USER_ID integer not null check (ID > 0),
+    primary key (USERNAME),
+    foreign key (USERNAME) references USERS(USERNAME)));""")
+
+    conn.execute("""create table SUBMISSIONS
+    (ID integer unique not null check (ID > 0),
+    AUTHOR text not null check (length(AUTHOR) > 0),
+    TITLE text not null,
+    DATE datetime not null,
+    DESCRIPTION text not null,
+    FOOTER text not null,
+    TAGS text not null,
+    CATEGORY text not null,
+    SPECIES text not null,
+    GENDER text not null,
+    RATING text not null,
+    TYPE text not null check (TYPE in ('image', 'music', 'text', 'flash')),
+    FILEURL text not null,
+    FILEEXT text not null,
+    FILESAVED integer not null check (FILESAVED in (0, 1, 2, 3, 4, 5, 6, 7)),
+    FAVORITE text not null,
+    MENTIONS text not null,
+    FOLDER text not null check (FOLDER in ('gallery', 'scraps')),
+    USERUPDATE boolean not null,
+    primary key (ID));""")
+
+    conn.execute("""create table JOURNALS
+    (ID integer unique not null check (ID > 0),
+    AUTHOR text not null check (length(AUTHOR) > 0),
+    TITLE text not null,
+    DATE datetime not null,
+    CONTENT text not null,
+    HEADER text not null,
+    FOOTER text not null,
+    MENTIONS text not null,
+    USERUPDATE integer not null check (USERUPDATE in (0, 1)),
+    primary key (ID))""")
+
+    conn.execute("""create table COMMENTS
+    (ID integer not null check (ID > 0),
+    PARENT_TABLE text not null check (PARENT_TABLE in ('SUBMISSIONS', 'JOURNALS')),
+    PARENT_ID integer not null check (PARENT_ID > 0),
+    REPLY_TO integer check (REPLY_TO == null or REPLY_TO > 0),
+    AUTHOR text not null check (length(AUTHOR) > 0),
+    DATE datetime not null,
+    TEXT text not null,
+    primary key (ID, PARENT_TABLE, PARENT_ID))""")
+
+    conn.execute("""create table SETTINGS
+    (SETTING text unique not null check (length(SETTING) > 0),
+    SVALUE text check (SVALUE == null or length(SVALUE) > 0),
+    primary key (SETTING));""")
+
+    conn.execute("insert or ignore into SETTINGS (SETTING, SVALUE) values (?, ?)", ["FILESFOLDER", "FA.files"])
+    conn.execute("insert or ignore into SETTINGS (SETTING, SVALUE) values (?, ?)", ["BACKUPFOLDER", "FA.backup"])
+    conn.execute("insert or ignore into SETTINGS (SETTING, SVALUE) values (?, ?)", ["VERSION", "5.5.0"])
+
+    conn.execute("""create table HISTORY
+    (TIME datetime unique not null,
+    EVENT text not null,
+    primary key (TIME));""")
+
+    conn.commit()
+
+    return conn
+
 
 # noinspection SqlResolve,SqlNoDataSourceInspection,DuplicatedCode
 def update_5_0(conn: Connection, _db_path: Path, db_new_path: Path):
@@ -663,6 +746,24 @@ def update_5_4_0(conn: Connection, _db_path: Path, db_new_path: Path) -> list[st
         conn.execute("update db_new.JOURNALS set CONTENT = ? where ID = ?", [clean_html(c), i])
 
     return [f"{footers_extracted} submission footers extracted"]
+
+# noinspection SqlResolve,SqlNoDataSourceInspection,DuplicatedCode,SqlWithoutWhere
+def update_5_5_0(conn: Connection, _db_path: Path, db_new_path: Path) -> list[str]:
+    make_database_5_5(connect(db_new_path)).close()
+    conn.execute("attach database ? as db_new", [str(db_new_path)])
+    conn.execute("insert into db_new.USERS select * from USERS")
+    conn.execute("insert into db_new.SUBMISSIONS select * from SUBMISSIONS")
+    conn.execute("insert into db_new.JOURNALS select * from JOURNALS")
+    conn.execute("insert into db_new.COMMENTS select * from COMMENTS")
+    conn.execute("insert into db_new.HISTORY select * from HISTORY")
+    conn.execute("insert or replace into db_new.SETTINGS select * from SETTINGS where SETTING != 'VERSION'")
+    conn.execute("update db_new.SETTINGS set SVALUE = '5.5.0' where SETTING = 'VERSION'")
+
+    for i, (username,) in enumerate(conn.execute("select USERNAME from db_new.USERS")):
+        conn.execute("insert into db_new.CURRENT_USERNAMES (?, ?)", i, username)
+        conn.execute("insert into db_new.ALL_USERNAMES (?, ?)", i, username)
+
+    return [f"{i+1} usernames recorded."]
 
 
 def update_wrapper(conn: Connection, update_function: Callable[[Connection, Path, Path], list[str] | None],
